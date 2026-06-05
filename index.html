@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IVT RFID Tracking System</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">IVT</div>
+        <div>
+          <strong>RFID Tracking</strong>
+          <span>Factory Operations</span>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Primary navigation">
+        <button class="nav-item active" data-screen="dashboard"><span class="nav-icon">D</span> Dashboard</button>
+        <button class="nav-item" data-screen="tracking"><span class="nav-icon">M</span> Live Tracking</button>
+        <button class="nav-item" data-screen="assets"><span class="nav-icon">A</span> Assets</button>
+        <button class="nav-item" data-screen="events"><span class="nav-icon">E</span> Scan Events</button>
+        <button class="nav-item" data-screen="alerts"><span class="nav-icon">!</span> Alerts</button>
+        <button class="nav-item" data-screen="reports"><span class="nav-icon">R</span> Reports</button>
+        <button class="nav-item" data-screen="readers"><span class="nav-icon">S</span> Readers</button>
+        <button class="nav-item" data-screen="settings"><span class="nav-icon">G</span> Settings</button>
+      </nav>
+      <div class="sidebar-status">
+        <div class="status-row">
+          <span class="pulse"></span>
+          <span>Live RFID Feed</span>
+        </div>
+        <strong>12 readers online</strong>
+        <small>Last sync: <span id="syncTime">09:42:18</span></small>
+      </div>
+    </aside>
+
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">IVT Factory A</p>
+          <h1 id="screenTitle">Dashboard</h1>
+        </div>
+        <div class="topbar-actions">
+          <label class="search">
+            <span>Search</span>
+            <input id="globalSearch" type="search" placeholder="Tag, item, reader, zone..." />
+          </label>
+          <select aria-label="Factory selector">
+            <option>Factory A - Bangpoo</option>
+            <option>Factory B - Rayong</option>
+            <option>Warehouse Hub</option>
+          </select>
+          <button class="icon-button" title="Notifications">3</button>
+          <div class="profile">
+            <span>OP</span>
+            <div>
+              <strong>Ops Manager</strong>
+              <small>Supervisor</small>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="screen active" id="dashboard">
+        <div class="kpi-grid">
+          <article class="kpi-card">
+            <span>Total Tagged Assets</span>
+            <strong>18,642</strong>
+            <small class="good">+312 today</small>
+          </article>
+          <article class="kpi-card">
+            <span>In Production</span>
+            <strong>2,418</strong>
+            <small>Line A / Line B / QA</small>
+          </article>
+          <article class="kpi-card">
+            <span>In Transit</span>
+            <strong>146</strong>
+            <small class="warn">24 pending handoff</small>
+          </article>
+          <article class="kpi-card critical">
+            <span>Exceptions</span>
+            <strong>17</strong>
+            <small>5 critical alerts</small>
+          </article>
+        </div>
+
+        <div class="dashboard-layout">
+          <section class="panel map-panel">
+            <div class="panel-head">
+              <div>
+                <h2>Factory Zone Status</h2>
+                <p>Real-time visibility from RFID gates and fixed readers</p>
+              </div>
+              <span class="badge live">Live</span>
+            </div>
+            <div class="factory-map compact-map" id="dashboardMap">
+              <div class="map-rail horizontal top"></div>
+              <div class="map-rail horizontal middle"></div>
+              <div class="map-rail vertical left"></div>
+              <div class="map-rail vertical right"></div>
+              <div class="route-step step-one"><strong>1</strong><span>Receive</span></div>
+              <div class="route-step step-two"><strong>2</strong><span>Production</span></div>
+              <div class="route-step step-three"><strong>3</strong><span>Dispatch</span></div>
+              <div class="moving-tag route-one" data-tag="RFID-IVT-000459" data-step="1"></div>
+              <div class="moving-tag route-two warning" data-tag="RFID-IVT-001198" data-step="2"></div>
+              <div class="map-zones"></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Recent Scan Events</h2>
+                <p>Latest 8 reader transactions</p>
+              </div>
+            </div>
+            <div class="event-list" id="recentEvents"></div>
+          </section>
+        </div>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Active Exceptions</h2>
+              <p>Operational alerts that need follow-up</p>
+            </div>
+            <button class="ghost-button" data-screen-jump="alerts">View all</button>
+          </div>
+          <div class="alert-strip" id="dashboardAlerts"></div>
+        </section>
+      </section>
+
+      <section class="screen" id="tracking">
+        <div class="tracking-layout">
+          <section class="panel live-map-panel">
+            <div class="panel-head">
+              <div>
+                <h2>Live Factory Map</h2>
+                <p>Readers, item movement, and zone-level status</p>
+              </div>
+              <div class="segmented" role="group" aria-label="Map mode">
+                <button class="active">Assets</button>
+                <button>Readers</button>
+                <button>Alerts</button>
+              </div>
+            </div>
+            <div class="filter-row">
+              <select>
+                <option>All asset types</option>
+                <option>Raw Material</option>
+                <option>WIP</option>
+                <option>Finished Goods</option>
+                <option>Tooling</option>
+              </select>
+              <select>
+                <option>All zones</option>
+                <option>Receiving</option>
+                <option>Line A</option>
+                <option>QA/QC</option>
+                <option>Dispatch</option>
+              </select>
+              <button class="primary-button">Refresh Feed</button>
+            </div>
+            <div class="factory-map large-map" id="trackingMap">
+              <div class="map-rail horizontal top"></div>
+              <div class="map-rail horizontal middle"></div>
+              <div class="map-rail vertical left"></div>
+              <div class="map-rail vertical right"></div>
+              <div class="route-step step-one"><strong>1</strong><span>Receive</span></div>
+              <div class="route-step step-two"><strong>2</strong><span>Production</span></div>
+              <div class="route-step step-three"><strong>3</strong><span>Dispatch</span></div>
+              <div class="moving-tag route-one" data-tag="RFID-IVT-000459" data-step="1"></div>
+              <div class="moving-tag route-two warning" data-tag="RFID-IVT-001198" data-step="2"></div>
+              <div class="moving-tag route-three" data-tag="RFID-IVT-000611" data-step="3"></div>
+              <div class="map-zones"></div>
+            </div>
+          </section>
+
+          <aside class="panel detail-panel">
+            <div class="panel-head">
+              <div>
+                <h2>Selected Item</h2>
+                <p>RFID-IVT-000459</p>
+              </div>
+              <span class="badge warn">In Transit</span>
+            </div>
+            <dl class="detail-list">
+              <div><dt>Item</dt><dd>Motor Housing</dd></div>
+              <div><dt>Batch / Lot</dt><dd>LOT-V363-0626</dd></div>
+              <div><dt>Current Zone</dt><dd>Line B Gate</dd></div>
+              <div><dt>Last Reader</dt><dd>RDR-LB02</dd></div>
+              <div><dt>Last Scan</dt><dd>09:41:56</dd></div>
+              <div><dt>Owner</dt><dd>Production Team B</dd></div>
+            </dl>
+            <h3>Movement History</h3>
+            <ol class="timeline">
+              <li><span>09:41</span> Exit Line B Gate</li>
+              <li><span>09:18</span> Enter Production Line B</li>
+              <li><span>08:52</span> Exit Raw Material WH</li>
+              <li><span>08:34</span> Receive from inbound dock</li>
+            </ol>
+          </aside>
+        </div>
+      </section>
+
+      <section class="screen" id="assets">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>RFID Asset Registry</h2>
+              <p>Tagged materials, WIP, finished goods, and tooling</p>
+            </div>
+            <button class="primary-button">Assign Tag</button>
+          </div>
+          <div class="filter-row">
+            <input id="assetFilter" type="search" placeholder="Filter assets..." />
+            <select id="assetStatusFilter">
+              <option value="all">All status</option>
+              <option value="In Stock">In Stock</option>
+              <option value="In Production">In Production</option>
+              <option value="In Transit">In Transit</option>
+              <option value="Missing">Missing</option>
+            </select>
+            <button class="ghost-button">Print Labels</button>
+            <button class="ghost-button">Export XLSX</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tag ID</th>
+                  <th>Item Code</th>
+                  <th>Item Name</th>
+                  <th>Batch / Lot</th>
+                  <th>Category</th>
+                  <th>Current Zone</th>
+                  <th>Status</th>
+                  <th>Last Scan</th>
+                  <th>Owner</th>
+                </tr>
+              </thead>
+              <tbody id="assetTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section class="screen" id="events">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>RFID Scan Events</h2>
+              <p>Reader-level event log for traceability</p>
+            </div>
+            <span class="badge live">Streaming</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Reader ID</th>
+                  <th>Zone</th>
+                  <th>Tag ID</th>
+                  <th>Item</th>
+                  <th>Direction</th>
+                  <th>Event Type</th>
+                  <th>Confidence</th>
+                </tr>
+              </thead>
+              <tbody id="eventTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section class="screen" id="alerts">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Alerts & Exceptions</h2>
+              <p>Misplaced assets, missing signals, offline readers, and unauthorized moves</p>
+            </div>
+            <button class="primary-button">Create Rule</button>
+          </div>
+          <div class="alerts-grid" id="alertCards"></div>
+        </section>
+      </section>
+
+      <section class="screen" id="reports">
+        <div class="report-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Inventory by Zone</h2>
+                <p>Current volume and dwell status</p>
+              </div>
+              <button class="ghost-button">Export PDF</button>
+            </div>
+            <div class="bar-list" id="zoneBars"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Reader Performance</h2>
+                <p>Read rate and uptime overview</p>
+              </div>
+            </div>
+            <div class="reader-grid" id="readerCards"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="screen" id="readers">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>RFID Readers</h2>
+              <p>Fixed readers, handheld devices, and gate antennas</p>
+            </div>
+            <button class="primary-button">Register Reader</button>
+          </div>
+          <div class="reader-grid wide" id="readerManagement"></div>
+        </section>
+      </section>
+
+      <section class="screen" id="settings">
+        <div class="settings-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Alert Rules</h2>
+                <p>Configure exception thresholds</p>
+              </div>
+            </div>
+            <label class="setting-row">
+              <span>Unauthorized zone movement</span>
+              <input type="checkbox" checked />
+            </label>
+            <label class="setting-row">
+              <span>Missing signal over 30 minutes</span>
+              <input type="checkbox" checked />
+            </label>
+            <label class="setting-row">
+              <span>Duplicate tag detection</span>
+              <input type="checkbox" checked />
+            </label>
+          </section>
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Zone Configuration</h2>
+                <p>Manage operational areas</p>
+              </div>
+            </div>
+            <div class="chip-cloud">
+              <span>Receiving</span>
+              <span>Raw Material WH</span>
+              <span>Line A</span>
+              <span>Line B</span>
+              <span>QA/QC</span>
+              <span>Packing</span>
+              <span>Dispatch</span>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
